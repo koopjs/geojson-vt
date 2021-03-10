@@ -1,6 +1,4 @@
-
 // calculate simplification data using optimized Douglas-Peucker algorithm
-
 export default function simplify(coords, first, last, sqTolerance) {
     let maxSqDist = sqTolerance;
     const mid = (last - first) >> 1;

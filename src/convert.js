@@ -1,4 +1,3 @@
-
 import simplify from './simplify.js';
 import createFeature from './feature.js';
 

@@ -1,6 +1,6 @@
 
 import test from 'tape';
-import geojsonvt from '../src/index.js';
+import Geojsonvt from '../src/index.js';
 
 const leftPoint = {
     type: 'Feature',
@@ -22,7 +22,7 @@ const rightPoint = {
 
 test('handle point only in the rightside world', (t) => {
     try {
-        const vt = geojsonvt(rightPoint);
+        const vt = new Geojsonvt(rightPoint);
         t.equal(vt.tiles[0].features[0].geometry[0], 1);
         t.equal(vt.tiles[0].features[0].geometry[1], .5);
     } catch (err) {
@@ -33,7 +33,7 @@ test('handle point only in the rightside world', (t) => {
 
 test('handle point only in the leftside world', (t) => {
     try {
-        const vt = geojsonvt(leftPoint);
+        const vt = new Geojsonvt(leftPoint);
         t.equal(vt.tiles[0].features[0].geometry[0], 0);
         t.equal(vt.tiles[0].features[0].geometry[1], .5);
     } catch (err) {
@@ -44,7 +44,7 @@ test('handle point only in the leftside world', (t) => {
 
 test('handle points in the leftside world and the rightside world', (t) => {
     try {
-        const vt = geojsonvt({
+        const vt = new Geojsonvt({
             type: 'FeatureCollection',
             features: [leftPoint, rightPoint]
         });

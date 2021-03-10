@@ -19,6 +19,15 @@ const defaultOptions = {
 };
 
 class GeoJSONVT {
+
+    static createTile ({ data, z, x, y, options }) {
+        const features = convert(data, options)
+
+        // TODO - Need to add split method here to ensure geometry is properly clipped
+        const tile = createTile(features, z, x, y, options)
+        return transform(tile, options.extent)
+    }
+
     constructor(data, options) {
         options = this.options = extend(Object.create(defaultOptions), options);
 
@@ -211,6 +220,99 @@ function extend(dest, src) {
     return dest;
 }
 
-export default function geojsonvt(data, options) {
-    return new GeoJSONVT(data, options);
-}
+// splitTile(features, z, x, y, cz, cx, cy) {
+
+//     const stack = [features, z, x, y];
+//     const options = this.options;
+//     const debug = options.debug;
+
+//     // avoid recursion by using a processing queue
+//     while (stack.length) {
+//         y = stack.pop();
+//         x = stack.pop();
+//         z = stack.pop();
+//         features = stack.pop();
+
+//         const z2 = 1 << z;
+//         const id = toID(z, x, y);
+//         let tile = this.tiles[id];
+
+//         if (!tile) {
+//             if (debug > 1) console.time('creation');
+
+//             tile = this.tiles[id] = createTile(features, z, x, y, options);
+//             this.tileCoords.push({z, x, y});
+
+//             if (debug) {
+//                 if (debug > 1) {
+//                     console.log('tile z%d-%d-%d (features: %d, points: %d, simplified: %d)',
+//                         z, x, y, tile.numFeatures, tile.numPoints, tile.numSimplified);
+//                     console.timeEnd('creation');
+//                 }
+//                 const key = `z${  z}`;
+//                 this.stats[key] = (this.stats[key] || 0) + 1;
+//                 this.total++;
+//             }
+//         }
+
+//         // save reference to original geometry in tile so that we can drill down later if we stop now
+//         tile.source = features;
+
+//         // if it's the first-pass tiling
+//         if (cz == null) {
+//             // stop tiling if we reached max zoom, or if the tile is too simple
+//             if (z === options.indexMaxZoom || tile.numPoints <= options.indexMaxPoints) continue;
+//         // if a drilldown to a specific tile
+//         } else if (z === options.maxZoom || z === cz) {
+//             // stop tiling if we reached base zoom or our target tile zoom
+//             continue;
+//         } else if (cz != null) {
+//             // stop tiling if it's not an ancestor of the target tile
+//             const zoomSteps = cz - z;
+//             if (x !== cx >> zoomSteps || y !== cy >> zoomSteps) continue;
+//         }
+
+//         // if we slice further down, no need to keep source geometry
+//         tile.source = null;
+
+//         if (features.length === 0) continue;
+
+//         if (debug > 1) console.time('clipping');
+
+//         // values we'll use for clipping
+//         const k1 = 0.5 * options.buffer / options.extent;
+//         const k2 = 0.5 - k1;
+//         const k3 = 0.5 + k1;
+//         const k4 = 1 + k1;
+
+//         let tl = null;
+//         let bl = null;
+//         let tr = null;
+//         let br = null;
+
+//         let left  = clip(features, z2, x - k1, x + k3, 0, tile.minX, tile.maxX, options);
+//         let right = clip(features, z2, x + k2, x + k4, 0, tile.minX, tile.maxX, options);
+//         features = null;
+
+//         if (left) {
+//             tl = clip(left, z2, y - k1, y + k3, 1, tile.minY, tile.maxY, options);
+//             bl = clip(left, z2, y + k2, y + k4, 1, tile.minY, tile.maxY, options);
+//             left = null;
+//         }
+
+//         if (right) {
+//             tr = clip(right, z2, y - k1, y + k3, 1, tile.minY, tile.maxY, options);
+//             br = clip(right, z2, y + k2, y + k4, 1, tile.minY, tile.maxY, options);
+//             right = null;
+//         }
+
+//         if (debug > 1) console.timeEnd('clipping');
+
+//         stack.push(tl || [], z + 1, x * 2,     y * 2);
+//         stack.push(bl || [], z + 1, x * 2,     y * 2 + 1);
+//         stack.push(tr || [], z + 1, x * 2 + 1, y * 2);
+//         stack.push(br || [], z + 1, x * 2 + 1, y * 2 + 1);
+//     }
+// }
+
+export default GeoJSONVT

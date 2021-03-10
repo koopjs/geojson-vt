@@ -1,4 +1,3 @@
-
 import test from 'tape';
 import fs from 'fs';
 import path from 'path';
@@ -11,14 +10,44 @@ const square = [{
     id: '42'
 }];
 
-test.only('getTile: us-states.json', (t) => {
+test.only('createTile: us-states.json', (t) => {
     const log = console.log;
 
     console.log = function () {};
-    const index = new Geojsonvt(getJSON('us-states.json'), {debug: 2});
+    const data = getJSON('us-states.json')
+    const tileFromStatic = Geojsonvt.createTile({ data, z: 7, x: 37, y: 48, options: {
+        "maxZoom": 14,
+        "tolerance": 3,
+        "extent": 4096,
+        "buffer": 64,
+        "debug": 0,
+        "lineMetrics": false,
+        "promoteId": null,
+        "generateId": false,
+        "indexMaxZoom": 5,
+        "indexMaxPoints": 100000
+      } })
 
-    t.same(index.getTile(7, 37, 48).features, getJSON('us-states-z7-37-48.json'), 'z7-37-48');
-    t.same(index.getTile('7', '37', '48').features, getJSON('us-states-z7-37-48.json'), 'z, x, y as strings');
+    const index = new Geojsonvt(getJSON('us-states.json'), {
+        "maxZoom": 14,
+        "tolerance": 3,
+        "extent": 4096,
+        "buffer": 64,
+        "debug": 0,
+        "lineMetrics": false,
+        "promoteId": null,
+        "generateId": false,
+        "indexMaxZoom": 5,
+        "indexMaxPoints": 100000
+      });
+
+   
+    
+      const fixture =  getJSON('us-states-z7-37-48.json')
+      const tile = index.getTile(7, 37, 48)
+      t.same(index.getTile(7, 37, 48).features, getJSON('us-states-z7-37-48.json'), 'z7-37-48');
+    t.same(tile, getJSON('us-states-z7-37-48.json'), 'z7-37-48');
+    t.same(tile.features, getJSON('us-states-z7-37-48.json'), 'z, x, y as strings');
 
     t.same(index.getTile(9, 148, 192).features, square, 'z9-148-192 (clipped square)');
     // t.same(index.getTile(11, 592, 768).features, square, 'z11-592-768 (clipped square)');

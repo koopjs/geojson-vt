@@ -2,7 +2,7 @@
 import test from 'tape';
 import fs from 'fs';
 import path from 'path';
-import geojsonvt from '../src/index.js';
+import Geojsonvt from '../src/index.js';
 
 testTiles('us-states.json', 'us-states-tiles.json', {indexMaxZoom: 7, indexMaxPoints: 200});
 testTiles('dateline.json', 'dateline-tiles.json', {indexMaxZoom: 0, indexMaxPoints: 10000});
@@ -45,7 +45,7 @@ function getJSON(name) {
 }
 
 function genTiles(data, options) {
-    const index = geojsonvt(data, Object.assign({
+    const index = new Geojsonvt(data, Object.assign({
         indexMaxZoom: 0,
         indexMaxPoints: 10000
     }, options));
